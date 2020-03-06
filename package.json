@@ -1,0 +1,36 @@
+{
+  "name": "node-starter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build && cd dist && node index.js",
+    "build": "npm run clean && tsc",
+    "clean": "ts-node clean.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pickjob/node-starter.git"
+  },
+  "author": "pickjob@126.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pickjob/node-starter/issues"
+  },
+  "homepage": "https://github.com/pickjob/node-starter#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^13.7.7",
+    "@types/shelljs": "^0.8.6",
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
+    "eslint": "^6.8.0",
+    "shelljs": "^0.8.3",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.3"
+  }
+}
