@@ -1,11 +1,12 @@
 {
   "name": "node-starter",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "My Personal Node Project",
+  "main": "app.js",
   "scripts": {
-    "start": "npm run build && cd dist && node index.js",
-    "build": "npm run clean && tsc",
+    "start": "npm run build && cd dist && node app.js",
+    "build": "npm run clean && tsc && npm run copy",
+    "copy": "ts-node copy.ts",
     "clean": "ts-node clean.ts"
   },
   "repository": {
@@ -20,11 +21,15 @@
   "homepage": "https://github.com/pickjob/node-starter#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "mongodb": "^3.5.4",
+    "puppeteer-core": "^2.1.1",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.5.2",
     "@types/node": "^13.7.7",
+    "@types/puppeteer-core": "^2.0.0",
     "@types/shelljs": "^0.8.6",
     "@typescript-eslint/eslint-plugin": "^2.22.0",
     "@typescript-eslint/parser": "^2.22.0",
