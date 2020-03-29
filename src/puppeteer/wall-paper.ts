@@ -9,21 +9,45 @@ const baseUrlSufix = '/cat/299/ord/rating/';
 const exePath = '';
 const tmpPath = '';
 const picPath = '';
+const waitTime = 10 * 60 * 1000;
 const collectionName = 'wall-paper';
 
 export abstract class WallPaper {
 
     static async waitDownload(fileName: string): Promise<void> {
+        let i = 0;
+        let lastSize = 0;
         while (true) {
             await PromiseUtil.delay(10000);
             const files = await PromiseUtil.readDir(tmpPath);
             for (const file of files) {
-                logger.debug(file);
                 if (!file.endsWith('.crdownload')) {
                     await PromiseUtil.move(tmpPath + '/' + file, picPath + '/' + file);
                     await MongoUtils.insertOne(collectionName, { fileName: fileName });
                     logger.info(`${file} has been downloaded successfully.`);
                     return;
+                } else {
+                    let stat = await PromiseUtil.statFile(tmpPath + '/' + file);
+                    if (lastSize == stat.size) {
+                        i++;
+                    } else {
+                        i = 0;
+                        lastSize = stat.size;
+                    }
+                    if (i > 60) {
+                        let delSuc = false;
+                        while (!delSuc) {
+                            try {
+                                await PromiseUtil.deleteFile(tmpPath + '/' + file);
+                                delSuc = true;
+                            } catch (err) {
+                                logger.error(`${err.name}: ${err.message}`);
+                                await PromiseUtil.delay(10000);
+                            }
+                        }
+                        logger.info(`pass ${fileName}`);
+                        return;
+                    }
                 }
             }
         }
@@ -39,7 +63,7 @@ export abstract class WallPaper {
                 logger.info(`page: ${i}`)
                 const url = baseUrlPrefix + i + baseUrlSufix;
                 const page = await browser.newPage();
-                await page.setDefaultTimeout(0);
+                await page.setDefaultTimeout(waitTime);
                 await page.setRequestInterception(true);
                 page.on('request', interceptedRequest => {
                     if (interceptedRequest.url().endsWith('.png'))
@@ -72,19 +96,21 @@ export abstract class WallPaper {
                                 // This path must match the WORKSPACE_DIR in Step 1
                                 downloadPath: tmpPath,
                             });
-                            await imagePage.setDefaultTimeout(0);
+                            await imagePage.setDefaultTimeout(waitTime);
                             logger.info(`goto url: ${imageUrl}`);
                             imagePage.goto(imageUrl)
                                 .catch(err => {
                                     logger.error(`${err.name}: ${err.message}`);
-                                });;
-                            await imagePage.waitForSelector('table.table-ocs-file tbody tr');
-                            logger.info('waiting for table.table-ocs-file tbody tr');
+                                });
                             await imagePage.waitForSelector('a[href="#files-panel"]');
                             const filePannel = await imagePage.$('a[href="#files-panel"]');
                             if (filePannel) {
                                 await filePannel.click();
-                                PromiseUtil.delay(5000);
+                                await PromiseUtil.delay(5000);
+                                logger.info('waiting for table.table-ocs-file tbody tr');
+                                await imagePage.waitForSelector('table.table-ocs-file tbody tr', {
+                                    timeout: 5 * 60 * 1000
+                                });
                                 const fileTable = await imagePage.$('.table-ocs-file');
                                 if (fileTable) {
                                     const fileTrs = await fileTable.$$('tbody tr');

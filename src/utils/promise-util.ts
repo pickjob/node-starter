@@ -24,6 +24,13 @@ export abstract class PromiseUtil {
                 resolve([]);
             });
         }
+    }
 
+    static async statFile(file: string): Promise<fs.Stats> {
+        return util.promisify(fs.lstat)(file);
+    }
+
+    static async deleteFile(file: string): Promise<void> {
+        return util.promisify(fs.unlink)(file);
     }
 }
