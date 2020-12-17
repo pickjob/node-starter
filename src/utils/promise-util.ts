@@ -1,6 +1,6 @@
 import * as util from 'util';
 import * as fs from 'fs';
-import { resolve } from 'dns';
+import { exec, ExecOptions } from 'child_process';
 
 export abstract class PromiseUtil {
 
@@ -33,4 +33,17 @@ export abstract class PromiseUtil {
     static async deleteFile(file: string): Promise<void> {
         return util.promisify(fs.unlink)(file);
     }
+
+    static async exists(path: string): Promise<boolean> {
+        return util.promisify(fs.exists)(path);
+    }
+
+    static async mk(path: string): Promise<void> {
+        return util.promisify(fs.mkdir)(path, { recursive: true });
+    }
+
+    static async exec(command: string, options: ExecOptions): Promise<{ stdout: string, stderr: string }> {
+        return util.promisify(exec)(command, options);
+    }
+
 }
